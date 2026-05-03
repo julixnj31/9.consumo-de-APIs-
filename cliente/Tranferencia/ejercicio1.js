@@ -1,15 +1,25 @@
-async function usuariosConPosts() {
-  const users = await fetch('https://jsonplaceholder.typicode.com/users')
-    .then(res => res.json());
+<<<<<<< HEAD
+import { getPublicaciones } from "./publicaciones/getPublicaciones.js";
+import { getUsuarios } from "./usuarios/getUsuarios.js";
 
-  const posts = await fetch('https://jsonplaceholder.typicode.com/posts')
-    .then(res => res.json());
 
-  users.forEach(user => {
-    const cantidad = posts.filter(post => post.userId === user.id).length;
+const cargarUsuarios = async () => {
+    const usuarios = await getUsuarios();
+    const publicaciones = await getPublicaciones();
+    const template = document.getElementById('fila-template');
+    const tablaBody = document.getElementById('tabla-body');
 
-    console.log(user.name + " - Publicaciones: " + cantidad);
-  });
+    usuarios.sort((a, b) =>
+        a.name.toLowerCase().localeCompare(b.name.toLowerCase())
+    );
+    usuarios.forEach(usuario => {
+        const clone = template.content.cloneNode(true);
+
+        const publicacionesPorUsuario = publicaciones.filter(publicacion => publicacion.userId == usuario.id);
+        clone.querySelector('.nombre').textContent = usuario.name;
+        clone.querySelector('.publicaciones').textContent = publicacionesPorUsuario.length;
+        tablaBody.appendChild(clone)
+    });
+
 }
-
-usuariosConPosts(); 
+cargarUsuarios()
