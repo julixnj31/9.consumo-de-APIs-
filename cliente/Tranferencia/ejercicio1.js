@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import { getPublicaciones } from "./publicaciones/getPublicaciones.js";
 import { getUsuarios } from "./usuarios/getUsuarios.js";
 
