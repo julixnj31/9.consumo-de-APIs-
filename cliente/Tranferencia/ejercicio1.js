@@ -1,25 +1,54 @@
-<<<<<<< HEAD
+// Ejercicio 1:
+// muestra todos los usuarios y cuenta cuantas publicaciones tiene cada uno.
 import { getPublicaciones } from "./publicaciones/getPublicaciones.js";
 import { getUsuarios } from "./usuarios/getUsuarios.js";
+import { renderTabla, renderMensajes } from "./utilidades/render.js";
 
-
+// Esta funcion carga los datos, los organiza y los dibuja en pantalla.
 const cargarUsuarios = async () => {
-    const usuarios = await getUsuarios();
-    const publicaciones = await getPublicaciones();
-    const template = document.getElementById('fila-template');
-    const tablaBody = document.getElementById('tabla-body');
+    try {
+        // GET consulta usuarios y publicaciones sin modificar los datos del servidor.
+        const [usuariosResponse, publicacionesResponse] = await Promise.all([
+            getUsuarios(),
+            getPublicaciones()
+        ]);
 
-    usuarios.sort((a, b) =>
-        a.name.toLowerCase().localeCompare(b.name.toLowerCase())
-    );
-    usuarios.forEach(usuario => {
-        const clone = template.content.cloneNode(true);
+        const usuarios = usuariosResponse.data || [];
+        const publicaciones = publicacionesResponse.data || [];
+        const publicacionesPorUsuario = new Map();
 
-        const publicacionesPorUsuario = publicaciones.filter(publicacion => publicacion.userId == usuario.id);
-        clone.querySelector('.nombre').textContent = usuario.name;
-        clone.querySelector('.publicaciones').textContent = publicacionesPorUsuario.length;
-        tablaBody.appendChild(clone)
-    });
+        // Guardamos cuantas publicaciones tiene cada usuario.
+        publicaciones.forEach((publicacion) => {
+            const userId = String(publicacion.userId);
+            const acumulado = publicacionesPorUsuario.get(userId) || 0;
+            publicacionesPorUsuario.set(userId, acumulado + 1);
+        });
 
-}
-cargarUsuarios()
+        // Creamos la estructura final que se mostrara en la tabla.
+        const filas = usuarios
+            .map((usuario) => ({
+                nombre: usuario.name,
+                publicaciones: publicacionesPorUsuario.get(String(usuario.id)) || 0
+            }))
+            .sort((a, b) => a.nombre.localeCompare(b.nombre));
+
+        renderTabla(
+            "Ejercicio 1: Usuarios activos y sus publicaciones",
+            [
+                { key: "nombre", label: "Nombre del usuario" },
+                { key: "publicaciones", label: "Cantidad de publicaciones" }
+            ],
+            filas,
+            "Se listan todos los usuarios, incluso si no tienen publicaciones asociadas."
+        );
+
+        console.table(filas);
+    } catch (error) {
+        // Si algo falla, mostramos el error en consola y en pantalla.
+        console.error("Error en el ejercicio 1:", error);
+        renderMensajes("Error en el ejercicio 1", [error.message]);
+    }
+};
+
+// Ejecuta el ejercicio al abrir la pagina.
+cargarUsuarios();

@@ -1,12 +1,8 @@
+// Este archivo crea una publicacion nueva.
+// Se usa en las solicitudes 4, 6, 7, 8 y 9.
+import { jsonRequest } from "../api.js";
+
+// Hace una peticion POST y envia el post en formato JSON.
 export const crearPublicacion = async (post) => {
-
-    const resp = await fetch("http://localhost:3000/posts", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify(post)
-    });
-
-    return await resp.json();
-}
+    return jsonRequest("/posts", "POST", post);
+};
